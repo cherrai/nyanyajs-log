@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+		"lib": ["es2015", "dom", "ES2020"],
+		"module": "commonjs",
+		"experimentalDecorators": true,
+
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"allowJs": false,
+		"declaration": true,
+		// 不允许隐式的 any 类型
+		"removeComments": true,
+		"moduleResolution": "node",
+		"types": [],
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"watch": true
+	},
+	"include": ["src"]
+}

@@ -1,0 +1,22 @@
+{
+	"name": "nyanyajs-log",
+	"version": "1.0.0",
+	"description": "一个可以展示丰富个性化内容的日志库.",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MetahorizonLab/nyanyajs-log.git"
+	},
+	"author": "shiina_aiiko",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/MetahorizonLab/nyanyajs-log/issues"
+	},
+	"homepage": "https://github.com/MetahorizonLab/nyanyajs-log#readme",
+	"dependencies": {
+		"moment": "^2.29.1"
+	}
+}
