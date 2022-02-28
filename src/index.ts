@@ -10,12 +10,16 @@ interface ConfigOptions {
 		}
 	}
 	format?: {
-		dateFormat?: string
+		date?: string
 		connectionSymbol?: string
 		prefixTemplate: string
+		function?: {
+			fullFunctionChain: boolean
+		}
 		timer?: {
 			unit: 'ms' | 'sec' | 'min' | 'hour' | 'day'
-			decimalPlaces: number
+			decimalPlaces?: number
+			autocompleteDecimal?: boolean
 		}
 	}
 	name?: string
@@ -65,13 +69,17 @@ export class NyaNyaLog {
 			},
 		},
 		format: {
-			dateFormat: 'YYYY-MM-DD H:mm:ss.SSS',
+			date: 'YYYY-MM-DD H:mm:ss.SSS',
 			connectionSymbol: '%',
+			function: {
+				fullFunctionChain: true,
+			},
 			prefixTemplate:
 				'[{{Timer}}] [{{Date}}] [{{Type}}] [{{File}}] [-->{{Function}}]@{{Name}}',
 			timer: {
 				unit: 'ms',
 				decimalPlaces: 3,
+				autocompleteDecimal: true,
 			},
 		},
 		name: '@nyanyajs-log',
@@ -94,8 +102,11 @@ export class NyaNyaLog {
 		options?.style?.color?.time &&
 			(this.configOptions.style.color.time = options?.style?.color?.time)
 
-		options?.format?.dateFormat &&
-			(this.configOptions.format.dateFormat = options?.format?.dateFormat)
+		options?.format?.date &&
+			(this.configOptions.format.date = options?.format?.date)
+		options?.format?.function?.hasOwnProperty('fullFunctionChain') &&
+			(this.configOptions.format.function.fullFunctionChain =
+				options?.format?.function?.fullFunctionChain)
 
 		options?.format?.prefixTemplate &&
 			(this.configOptions.format.prefixTemplate =
@@ -106,6 +117,10 @@ export class NyaNyaLog {
 			(this.configOptions.format.timer.decimalPlaces =
 				options?.format?.timer?.decimalPlaces)
 
+		options?.format?.timer?.hasOwnProperty('autocompleteDecimal') &&
+			(this.configOptions.format.timer.autocompleteDecimal =
+				options?.format?.timer?.autocompleteDecimal)
+
 		options?.format?.connectionSymbol &&
 			(this.configOptions.format.connectionSymbol =
 				options?.format?.connectionSymbol)
@@ -113,12 +128,12 @@ export class NyaNyaLog {
 		options?.name && (this.configOptions.name = options?.name)
 	}
 	static getLogStack() {
-		const stackStartIndex = 5
-		const stackInfo = new Error().stack.split('at')
-		// console.log(stackInfo)
+		const stackStartIndex = 4
+		const stackInfo = new Error().stack.split('\n')
 		const fileInfo = stackInfo[stackStartIndex].split('/')
 		let funcNameText = ''
 		for (let i = stackStartIndex; i < stackInfo.length; i++) {
+			stackInfo[i] = stackInfo[i].slice(6, stackInfo[i].length - 1)
 			if (stackInfo[i].indexOf('/') === 1) {
 				continue
 			}
@@ -137,7 +152,8 @@ export class NyaNyaLog {
 			// }
 		}
 		return {
-			funcName: funcNameText.trim(),
+			function: stackInfo[stackStartIndex].split(' (/')[0].trim(),
+			functionChain: funcNameText.trim(),
 			fileInfo: fileInfo[fileInfo.length - 1]
 				.slice(0, fileInfo[fileInfo.length - 1].length - 6)
 				.trim(),
@@ -153,7 +169,7 @@ export class NyaNyaLog {
 
 		log = log.replace(
 			/{{Date}}/g,
-			monment().format(this.configOptions.format.dateFormat)
+			monment().format(this.configOptions.format.date)
 		)
 		log = log.replace(
 			/{{Type}}/g,
@@ -165,7 +181,16 @@ export class NyaNyaLog {
 				? 'TIME'
 				: 'WARNING'
 		)
-		log = log.replace(/{{Function}}/g, logStack.funcName)
+
+		log = log.replace(
+			/{{Function}}/g,
+			this.configOptions.format.function.fullFunctionChain
+				? logStack.functionChain
+				: logStack.function
+		)
+		// console.log(this.configOptions.format.function.fullFunctionChain)
+		// console.log(logStack.functionChain)
+		// console.log(logStack.function)
 		log = log.replace(/{{File}}/g, logStack.fileInfo)
 		log = log.replace(/{{Name}}/g, this.configOptions.name)
 		// log = log.replace(
@@ -204,10 +229,17 @@ export class NyaNyaLog {
 				default:
 					break
 			}
-			log = log.replace(
-				/{{Timer}}/g,
-				String(Math.round(timer * tempNum) / tempNum)
-			)
+			let result = (Math.round(timer * tempNum) / tempNum).toString()
+			if (this.configOptions.format.timer.autocompleteDecimal) {
+				for (
+					let i = result.split('.')[1].length;
+					i < this.configOptions.format.timer.decimalPlaces || 0;
+					i++
+				) {
+					result = result + '0'
+				}
+			}
+			log = log.replace(/{{Timer}}/g, result)
 		}
 
 		// console.log(monment(performance.now() - this.timerTimestamp).format('mm'))
