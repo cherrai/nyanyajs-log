@@ -12,9 +12,9 @@ nyalog.config({
 	},
 	format: {
 		date: 'YYYY-MM-DD H:mm:ss.SSS',
-		// function: {
-		// 	fullFunctionChain: false,
-		// },
+		function: {
+			fullFunctionChain: false,
+		},
 		connectionSymbol: '%',
 		prefixTemplate:
 			'[{{Timer}}] [{{Type}}] [{{File}}] [-->{{Function}}]@{{Name}}',

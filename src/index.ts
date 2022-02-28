@@ -131,7 +131,8 @@ export class NyaNyaLog {
 		const stackStartIndex = 4
 		const stackInfo = new Error().stack.split('\n')
 		const fileInfo = stackInfo[stackStartIndex].split('/')
-		let funcNameText = ''
+		let functionChain = ''
+		let functionName = ''
 		for (let i = stackStartIndex; i < stackInfo.length; i++) {
 			stackInfo[i] = stackInfo[i].slice(6, stackInfo[i].length - 1)
 			if (stackInfo[i].indexOf('/') === 1) {
@@ -140,20 +141,23 @@ export class NyaNyaLog {
 			// console.log(stackInfo[i], stackInfo[i].match(/\s(.)?:/gi))
 			const funcName = stackInfo[i].split(' (/')[0].trim()
 			// console.log(funcName)
+			if (!functionName) {
+				functionName = funcName
+			}
 			if (funcName === 'Object.<anonymous>') {
-				if (!funcNameText) {
-					funcNameText = funcName
+				if (!functionChain) {
+					functionChain = funcName
 				}
 				break
 			}
 			// console.log(stackInfo[i].indexOf(' (/'))
 			// if (stackInfo[i].indexOf(' (/') >= 0) {
-			funcNameText = funcName + (!funcNameText ? '' : '.') + funcNameText
+			functionChain = funcName + (!functionChain ? '' : '.') + functionChain
 			// }
 		}
 		return {
-			function: stackInfo[stackStartIndex].split(' (/')[0].trim(),
-			functionChain: funcNameText.trim(),
+			function: functionName.trim(),
+			functionChain: functionChain.trim(),
 			fileInfo: fileInfo[fileInfo.length - 1]
 				.slice(0, fileInfo[fileInfo.length - 1].length - 6)
 				.trim(),
