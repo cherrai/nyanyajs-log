@@ -18,7 +18,7 @@ interface ConfigOptions {
 		}
 		timer?: {
 			unit: 'ms' | 'sec' | 'min' | 'hour' | 'day'
-			decimalPlaces?: number
+			precision?: number
 			autocompleteDecimal?: boolean
 		}
 	}
@@ -47,7 +47,7 @@ export class NyaNyaLog {
 		blue: '\x1B[34m', // 蓝色
 		magenta: '\x1B[35m', // 品红
 		cyan: '\x1B[36m', // 青色
-		white: '\x1B[37m', // 白色
+		white: '\x1B[39m', // 白色
 	}
 	static colorBg = {
 		blackBG: '\x1B[40m', // 背景色为黑色
@@ -74,11 +74,12 @@ export class NyaNyaLog {
 			function: {
 				fullFunctionChain: true,
 			},
+			// Timer/Date/Type/File/Function
 			prefixTemplate:
 				'[{{Timer}}] [{{Date}}] [{{Type}}] [{{File}}] [-->{{Function}}]@{{Name}}',
 			timer: {
 				unit: 'ms',
-				decimalPlaces: 3,
+				precision: 3,
 				autocompleteDecimal: true,
 			},
 		},
@@ -108,14 +109,15 @@ export class NyaNyaLog {
 			(this.configOptions.format.function.fullFunctionChain =
 				options?.format?.function?.fullFunctionChain)
 
-		options?.format?.prefixTemplate &&
+		options?.format?.hasOwnProperty('prefixTemplate') &&
 			(this.configOptions.format.prefixTemplate =
 				options?.format?.prefixTemplate)
+
 		options?.format?.timer?.unit &&
 			(this.configOptions.format.timer.unit = options?.format?.timer?.unit)
-		options?.format?.timer?.decimalPlaces &&
-			(this.configOptions.format.timer.decimalPlaces =
-				options?.format?.timer?.decimalPlaces)
+		options?.format?.timer?.precision &&
+			(this.configOptions.format.timer.precision =
+				options?.format?.timer?.precision)
 
 		options?.format?.timer?.hasOwnProperty('autocompleteDecimal') &&
 			(this.configOptions.format.timer.autocompleteDecimal =
@@ -159,14 +161,18 @@ export class NyaNyaLog {
 			function: functionName.trim(),
 			functionChain: functionChain.trim(),
 			fileInfo: fileInfo[fileInfo.length - 1]
-				.slice(0, fileInfo[fileInfo.length - 1].length - 6)
+				.slice(0, fileInfo[fileInfo.length - 1].length - 1)
 				.trim(),
 		}
 	}
 
 	private format = (type: 'info' | 'time' | 'error' | 'warn') => {
+		if (!this.configOptions.format.prefixTemplate) {
+			return ''
+		}
 		const logStack = NyaNyaLog.getLogStack()
 		let log = NyaNyaLog.color[this.configOptions.style.color[type]]
+
 		log += this.configOptions.format.prefixTemplate
 
 		// console.log('log', log)
@@ -213,7 +219,7 @@ export class NyaNyaLog {
 				}
 				return num
 			}
-			let tempNum = convert(this.configOptions.format.timer.decimalPlaces || 0)
+			let tempNum = convert(this.configOptions.format.timer.precision || 0)
 			switch (this.configOptions.format.timer.unit) {
 				case 'ms':
 					break
@@ -236,8 +242,8 @@ export class NyaNyaLog {
 			let result = (Math.round(timer * tempNum) / tempNum).toString()
 			if (this.configOptions.format.timer.autocompleteDecimal) {
 				for (
-					let i = result.split('.')[1].length;
-					i < this.configOptions.format.timer.decimalPlaces || 0;
+					let i = result.split('.')[1]?.length||0;
+					i < this.configOptions.format.timer.precision || 0;
 					i++
 				) {
 					result = result + '0'
@@ -295,7 +301,11 @@ export const time: typeof nyanyalog.Time = nyanyalog.Time.bind(nyanyalog)
 export const timeEnd: typeof nyanyalog.TimeEnd =
 	nyanyalog.TimeEnd.bind(nyanyalog)
 export const timer: typeof nyanyalog.Timer = nyanyalog.Timer.bind(nyanyalog)
-
+export const baselog = new NyaNyaLog({
+	format: {
+		prefixTemplate: '[{{Type}}]',
+	},
+})
 export default {
 	NyaNyaLog,
 	config,
@@ -305,4 +315,5 @@ export default {
 	time,
 	timeEnd,
 	timer,
+	baselog,
 }

@@ -20,7 +20,7 @@ nyalog.config({
 			'[{{Timer}}] [{{Type}}] [{{File}}] [-->{{Function}}]@{{Name}}',
 		timer: {
 			unit: 'ms',
-			decimalPlaces: 3,
+			precision: 3,
 			autocompleteDecimal: true,
 		},
 	},
