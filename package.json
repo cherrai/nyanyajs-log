@@ -5,19 +5,22 @@
 	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
-		"publish": "npm publish --registry https://registry.npm.aiiko.club"
+		"pub": "npm publish --registry https://registry.npm.aiiko.club"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/MetahorizonLab/nyanyajs-log.git"
 	},
 	"author": "shiina_aiiko",
-  "license": "LGPL-2.1-only",
+	"license": "LGPL-2.1-only",
 	"bugs": {
 		"url": "https://github.com/MetahorizonLab/nyanyajs-log/issues"
 	},
 	"homepage": "https://github.com/MetahorizonLab/nyanyajs-log#readme",
 	"dependencies": {
 		"moment": "^2.29.1"
+	},
+	"devDependencies": {
+		"typescript": "4.1.2"
 	}
 }
